@@ -1,0 +1,6 @@
+{
+	project 'cobject'
+	author 'Arch Strange'
+	email 'arch.strange@foxmail.com'
+	brief 'implements object in c'
+}
