@@ -19,6 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
+
+#define DEBUG 1
 
 /// # CObject Model
 ///
@@ -67,14 +70,38 @@ struct CO {
 	size_t ref;
 };
 
+static inline void __co_new(size_t *ref)
+{
+#ifdef DEBUG
+	fprintf(stderr, "Ref %p set to 1\n", ref);
+#endif
+	*ref = 1;
+}
+
 #define CO_NEW(self) \
 	calloc(sizeof(*self), 1); \
-	self->CO.ref = 1
+	__co_new(&self->CO.ref)
 
-#define CO_NEWREF(self) self->CO.ref += 1
+static inline void __co_new_ref(size_t *ref)
+{
+	*ref += 1;
+#ifdef DEBUG
+	fprintf(stderr, "Ref %p incres 1 -> %lu\n", ref, *ref);
+#endif
+}
+
+#define CO_NEWREF(self) __co_new_ref(&self->CO.ref)
+
+static inline void __co_free_ref(size_t *ref)
+{
+	*ref -= 1;
+#ifdef DEBUG
+	fprintf(stderr, "Ref %p decres 1 -> %lu\n", ref, *ref);
+#endif
+}
 
 #define CO_FREEREF(self, free_func) \
-	self->CO.ref -= 1; \
+	__co_free_ref(&self->CO.ref); \
 	if (self->CO.ref == 0) free_func(self)
 
 /// Some qualifiers
